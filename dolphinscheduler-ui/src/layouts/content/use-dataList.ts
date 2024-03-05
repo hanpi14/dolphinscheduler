@@ -78,6 +78,8 @@ export function useDataList() {
     timezoneList.map((item) => ({ label: item, value: item }))
 
   const state = reactive({
+    //标记
+    isTopSide: true,
     isShowSide: false,
     localesOptions,
     timezoneOptions: timezoneOptions(),

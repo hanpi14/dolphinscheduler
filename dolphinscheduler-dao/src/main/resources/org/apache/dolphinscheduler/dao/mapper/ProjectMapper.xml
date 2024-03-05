@@ -186,4 +186,18 @@
         select code, name
         from t_ds_project
     </select>
+    <select id="queryByProjectIds" resultType="org.apache.dolphinscheduler.dao.entity.Project">
+        select
+        <include refid="baseSql"/>
+        from t_ds_project
+        <where>
+            <if test="projectsIds != null and projectsIds.size() > 0">
+                id in
+                <foreach item="id" index="index" collection="projectsIds" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+
+    </select>
 </mapper>

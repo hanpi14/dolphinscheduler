@@ -37,6 +37,7 @@ export default {
         title: '服务管理-Master',
         activeMenu: 'monitor',
         showSide: true,
+        showTopSide: true,
         auth: []
       }
     },
@@ -48,6 +49,7 @@ export default {
         title: '服务管理-Worker',
         activeMenu: 'monitor',
         showSide: true,
+        showTopSide: true,
         auth: []
       }
     },
@@ -59,6 +61,7 @@ export default {
         title: '服务管理-DB',
         activeMenu: 'monitor',
         showSide: true,
+        showTopSide: true,
         auth: []
       }
     },
@@ -70,6 +73,7 @@ export default {
         title: '统计管理-Statistics',
         activeMenu: 'monitor',
         showSide: true,
+        showTopSide: true,
         auth: []
       }
     },
@@ -81,6 +85,7 @@ export default {
         title: '审计日志-AuditLog',
         activeMenu: 'monitor',
         showSide: true,
+        showTopSide: true,
         auth: []
       }
     }

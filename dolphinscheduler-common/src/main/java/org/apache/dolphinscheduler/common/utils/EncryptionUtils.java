@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 public class EncryptionUtils {
 
     private EncryptionUtils() {
+
         throw new UnsupportedOperationException("Construct EncryptionUtils");
     }
 

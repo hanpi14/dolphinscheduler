@@ -82,6 +82,7 @@ export function useTable() {
             ButtonLink,
             {
               onClick: () => {
+                // window.top?.postMessage("","",[])
                 router.push({ path: `/projects/${row.code}` })
               }
             },

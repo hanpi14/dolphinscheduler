@@ -25,6 +25,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 public interface Authenticator {
+
     /**
      * Verifying legality via username and password
      * @param username user name
@@ -40,4 +41,9 @@ public interface Authenticator {
      * @return user
      */
     User getAuthUser(HttpServletRequest request);
+
+    Result<Map<String, String>> authenticateSSO(String id, String ip);
+
+    Result<Map<String, Object>> authenticateDAM(String userName, String ip);
+
 }

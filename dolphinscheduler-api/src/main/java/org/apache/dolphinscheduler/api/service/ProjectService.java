@@ -180,4 +180,6 @@ public interface ProjectService {
      */
     Result queryAllProjectListForDependent();
 
+    Result queryAllProjectOnManager(User userByUserName);
+
 }

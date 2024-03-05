@@ -37,6 +37,7 @@ export default {
         title: '文件管理',
         activeMenu: 'resource',
         showSide: true,
+        showTopSide: true,
         auth: []
       }
     },
@@ -49,6 +50,7 @@ export default {
         activeMenu: 'resource',
         activeSide: '/resource/file-manage',
         showSide: true,
+        showTopSide: true,
         auth: []
       }
     },
@@ -61,6 +63,7 @@ export default {
         activeMenu: 'resource',
         activeSide: '/resource/file-manage',
         showSide: true,
+        showTopSide: true,
         auth: []
       }
     },
@@ -73,6 +76,7 @@ export default {
         activeMenu: 'resource',
         activeSide: '/resource/file-manage',
         showSide: true,
+        showTopSide: true,
         auth: []
       }
     },
@@ -85,6 +89,7 @@ export default {
         activeMenu: 'resource',
         activeSide: '/resource/file-manage',
         showSide: true,
+        showTopSide: true,
         auth: []
       }
     },
@@ -97,6 +102,7 @@ export default {
         activeMenu: 'resource',
         activeSide: '/resource/file-manage',
         showSide: true,
+        showTopSide: true,
         auth: []
       }
     },
@@ -108,6 +114,7 @@ export default {
         title: '资源管理',
         activeMenu: 'resource',
         showSide: true,
+        showTopSide: true,
         auth: []
       }
     },
@@ -120,6 +127,7 @@ export default {
         activeMenu: 'resource',
         activeSide: '/resource/resource-manage',
         showSide: true,
+        showTopSide: true,
         auth: []
       }
     },
@@ -131,6 +139,7 @@ export default {
         title: '函数管理',
         activeMenu: 'resource',
         showSide: true,
+        showTopSide: true,
         auth: []
       }
     },
@@ -142,6 +151,7 @@ export default {
         title: '任务组配置',
         activeMenu: 'resource',
         showSide: true,
+        showTopSide: true,
         auth: []
       }
     },
@@ -153,6 +163,7 @@ export default {
         title: '任务组队列',
         activeMenu: 'resource',
         showSide: true,
+        showTopSide: true,
         auth: []
       }
     }

@@ -20,6 +20,7 @@ package org.apache.dolphinscheduler.api.controller;
 import static org.apache.dolphinscheduler.api.enums.Status.CREATE_PROJECT_ERROR;
 import static org.apache.dolphinscheduler.api.enums.Status.DELETE_PROJECT_ERROR;
 import static org.apache.dolphinscheduler.api.enums.Status.LOGIN_USER_QUERY_PROJECT_LIST_PAGING_ERROR;
+import static org.apache.dolphinscheduler.api.enums.Status.QUERY_ALL_PROJECT_ON_MANAGER_ERROR;
 import static org.apache.dolphinscheduler.api.enums.Status.QUERY_AUTHORIZED_AND_USER_CREATED_PROJECT_ERROR;
 import static org.apache.dolphinscheduler.api.enums.Status.QUERY_AUTHORIZED_PROJECT;
 import static org.apache.dolphinscheduler.api.enums.Status.QUERY_AUTHORIZED_USER;
@@ -30,13 +31,14 @@ import static org.apache.dolphinscheduler.api.enums.Status.UPDATE_PROJECT_ERROR;
 import org.apache.dolphinscheduler.api.aspect.AccessLogAnnotation;
 import org.apache.dolphinscheduler.api.exceptions.ApiException;
 import org.apache.dolphinscheduler.api.service.ProjectService;
+import org.apache.dolphinscheduler.api.service.UsersService;
 import org.apache.dolphinscheduler.api.utils.Result;
 import org.apache.dolphinscheduler.common.constants.Constants;
 import org.apache.dolphinscheduler.dao.entity.User;
 import org.apache.dolphinscheduler.plugin.task.api.utils.ParameterUtils;
-import org.apache.dolphinscheduler.dao.entity.User;
 
 import springfox.documentation.annotations.ApiIgnore;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -62,11 +64,14 @@ import io.swagger.annotations.ApiOperation;
 @Api(tags = "PROJECT_TAG")
 @RestController
 @RequestMapping("projects")
+@Slf4j
 public class ProjectController extends BaseController {
 
     @Autowired
     private ProjectService projectService;
 
+    @Autowired
+    private UsersService usersService;
     /**
      * create project
      *
@@ -277,7 +282,8 @@ public class ProjectController extends BaseController {
     @ResponseStatus(HttpStatus.OK)
     @ApiException(LOGIN_USER_QUERY_PROJECT_LIST_PAGING_ERROR)
     @AccessLogAnnotation(ignoreRequestArgs = "loginUser")
-    public Result queryAllProjectList(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser) {
+    public Result queryAllProjectList(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
+                                      @RequestParam(value = "accesstoken", required = false) String accesstoken) {
         return projectService.queryAllProjectList(loginUser);
     }
 
@@ -294,5 +300,23 @@ public class ProjectController extends BaseController {
     @AccessLogAnnotation(ignoreRequestArgs = "loginUser")
     public Result queryAllProjectListForDependent(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser) {
         return projectService.queryAllProjectListForDependent();
+    }
+
+    /**
+     * uery all project list on manager
+     * @param userName
+     * @return
+     */
+
+    @ApiOperation(value = "queryAllProjectByUserNameOnManager", notes = "QUERY_ALL_PROJECT_BY_USERNAME_ON_MANAGER_NOTES")
+    @GetMapping(value = "/project-list")
+    @ResponseStatus(HttpStatus.OK)
+    @ApiException(QUERY_ALL_PROJECT_ON_MANAGER_ERROR)
+    public Result queryAllProjectOnManager(@RequestParam("userName") String userName) {
+
+        User userByUserName = usersService.getUserByUserName(userName);
+
+        log.info("获取的user是:{}", userByUserName);
+        return projectService.queryAllProjectOnManager(userByUserName);
     }
 }

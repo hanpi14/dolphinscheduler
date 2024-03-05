@@ -37,6 +37,7 @@ export default {
         title: '数据质量-task-result',
         activeMenu: 'data-quality',
         showSide: true,
+        showTopSide: true,
         auth: []
       }
     },
@@ -48,6 +49,7 @@ export default {
         title: '数据质量-rule',
         activeMenu: 'data-quality',
         showSide: true,
+        showTopSide: true,
         auth: []
       }
     }

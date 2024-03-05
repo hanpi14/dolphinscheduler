@@ -56,6 +56,7 @@ const Content = defineComponent({
         state.menuOptions.filter((menu: { key: string }) => menu.key === key)[0]
           ?.children || state.menuOptions
       state.isShowSide = route.meta.showSide
+      state.isTopSide = route.meta.showTopSide
     }
 
     watch(useI18n().locale, () => {
@@ -72,6 +73,7 @@ const Content = defineComponent({
           routeStore.setLastRoute(route.path)
 
           state.isShowSide = route.meta.showSide as boolean
+          state.isTopSide = route.meta.showTopSide as boolean
           if (route.matched[1].path === '/projects/:projectCode') {
             changeMenuOption(state)
           }
@@ -103,16 +105,18 @@ const Content = defineComponent({
   render() {
     return (
       <NLayout style='height: 100%'>
-        <NLayoutHeader style='height: 65px'>
-          <NavBar
-            class='tab-horizontal'
-            headerMenuOptions={this.headerMenuOptions}
-            localesOptions={this.localesOptions}
-            timezoneOptions={this.timezoneOptions}
-            userDropdownOptions={this.userDropdownOptions}
-          />
-        </NLayoutHeader>
-        <NLayout has-sider position='absolute' style='top: 65px'>
+        {this.isTopSide &&(
+            <NLayoutHeader style='height: 65px'>
+              <NavBar
+                  class='tab-horizontal'
+                  headerMenuOptions={this.headerMenuOptions}
+                  localesOptions={this.localesOptions}
+                  timezoneOptions={this.timezoneOptions}
+                  userDropdownOptions={this.userDropdownOptions}
+              />
+            </NLayoutHeader>
+        )}
+        <NLayout has-sider position='absolute' style={`top: ${this.isTopSide ? '65px' : '0'}`}>
           {this.isShowSide && (
             <SideBar
               sideMenuOptions={this.sideMenuOptions}

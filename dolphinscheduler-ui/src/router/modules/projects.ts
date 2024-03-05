@@ -39,6 +39,7 @@ export default {
         title: '项目',
         activeMenu: 'projects',
         showSide: false,
+        showTopSide: true,
         auth: []
       }
     },
@@ -50,6 +51,7 @@ export default {
         title: '项目概览',
         activeMenu: 'projects',
         showSide: true,
+        showTopSide: true,
         auth: []
       }
     },
@@ -61,6 +63,7 @@ export default {
         title: '工作流关系',
         activeMenu: 'projects',
         showSide: true,
+        showTopSide: true,
         auth: []
       }
     },
@@ -71,7 +74,8 @@ export default {
       meta: {
         title: '工作流定义',
         activeMenu: 'projects',
-        showSide: true,
+        showSide: false,
+        showTopSide: false,
         auth: []
       }
     },
@@ -83,7 +87,8 @@ export default {
         title: '定时管理',
         activeMenu: 'projects',
         activeSide: '/projects/:projectCode/workflow-definition',
-        showSide: true,
+        showSide: false,
+        showTopSide: false,
         auth: []
       }
     },
@@ -95,7 +100,8 @@ export default {
         title: '创建工作流定义',
         activeMenu: 'projects',
         activeSide: '/projects/:projectCode/workflow-definition',
-        showSide: true,
+        showSide: false,
+        showTopSide: false,
         auth: []
       }
     },
@@ -107,7 +113,8 @@ export default {
         title: '工作流定义详情',
         activeMenu: 'projects',
         activeSide: '/projects/:projectCode/workflow-definition',
-        showSide: true,
+        showSide: false,
+        showTopSide: false,
         auth: []
       }
     },
@@ -118,7 +125,8 @@ export default {
       meta: {
         title: '工作流实例',
         activeMenu: 'projects',
-        showSide: true,
+        showSide: false,
+        showTopSide: false,
         auth: []
       }
     },
@@ -130,7 +138,8 @@ export default {
         title: '工作流实例详情',
         activeMenu: 'projects',
         activeSide: '/projects/:projectCode/workflow/instances',
-        showSide: true,
+        showSide: false,
+        showTopSide: false,
         auth: []
       }
     },
@@ -142,7 +151,8 @@ export default {
         title: '工作流实例甘特图',
         activeMenu: 'projects',
         activeSide: '/projects/:projectCode/workflow/instances',
-        showSide: true,
+        showSide: false,
+        showTopSide: false,
         auth: []
       }
     },
@@ -154,6 +164,7 @@ export default {
         title: '任务定义',
         activeMenu: 'projects',
         showSide: true,
+        showTopSide: true,
         auth: []
       }
     },
@@ -165,6 +176,7 @@ export default {
         title: '任务实例',
         activeMenu: 'projects',
         showSide: true,
+        showTopSide: true,
         auth: []
       }
     },
@@ -176,7 +188,8 @@ export default {
         title: '工作流定义树形图',
         activeMenu: 'projects',
         activeSide: '/projects/:projectCode/workflow-definition',
-        showSide: true,
+        showSide: false,
+        showTopSide: false,
         auth: []
       }
     }

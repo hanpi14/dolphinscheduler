@@ -17,11 +17,14 @@
 
 package org.apache.dolphinscheduler.api.configuration;
 
-import org.apache.dolphinscheduler.api.interceptor.LocaleChangeInterceptor;
+import org.apache.dolphinscheduler.api.interceptor.DamHandlerInterceptor;
 import org.apache.dolphinscheduler.api.interceptor.LoginHandlerInterceptor;
 import org.apache.dolphinscheduler.api.interceptor.RateLimitInterceptor;
+import org.apache.dolphinscheduler.api.interceptor.SsoLoginHandlerInterceptor;
 
 import java.util.Locale;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -36,11 +39,13 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.CookieLocaleResolver;
+import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 
 /**
  * application configuration
  */
 @Configuration
+@Slf4j
 public class AppConfiguration implements WebMvcConfigurer {
 
     public static final String LOGIN_INTERCEPTOR_PATH_PATTERN = "/**/*";
@@ -48,9 +53,17 @@ public class AppConfiguration implements WebMvcConfigurer {
     public static final String REGISTER_PATH_PATTERN = "/users/register";
     public static final String PATH_PATTERN = "/**";
     public static final String LOCALE_LANGUAGE_COOKIE = "language";
+    private static final String SSO_LOGIN_PATTERN = "/oauth_callback";
+    private static final String QUERY_ON_DAM = "/dam_callback";
 
     @Autowired
     private TrafficConfiguration trafficConfiguration;
+
+    @Autowired
+    private SsoLoginHandlerInterceptor ssoLoginHandlerInterceptor;
+
+    @Autowired
+    private DamHandlerInterceptor damHandlerInterceptor;
 
     @Bean
     public CorsFilter corsFilter() {
@@ -70,6 +83,7 @@ public class AppConfiguration implements WebMvcConfigurer {
 
     /**
      * Cookie
+     *
      * @return local resolver
      */
     @Bean(name = "localeResolver")
@@ -90,21 +104,38 @@ public class AppConfiguration implements WebMvcConfigurer {
 
     @Bean
     public RateLimitInterceptor createRateLimitInterceptor() {
+
         return new RateLimitInterceptor(trafficConfiguration);
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+
+        registry.addInterceptor(damHandlerInterceptor)
+                .addPathPatterns(QUERY_ON_DAM)
+                .excludePathPatterns("/swagger-resources/**", "/webjars/**", "/v3/api-docs/**", "/api-docs/**",
+                        "/doc.html", "/swagger-ui/**", "*.html", "/ui/**");
+
+        registry.addInterceptor(ssoLoginHandlerInterceptor)
+                .addPathPatterns(SSO_LOGIN_PATTERN)
+                .excludePathPatterns(LOGIN_PATH_PATTERN, REGISTER_PATH_PATTERN,
+                        "/swagger-resources/**", "/webjars/**", "/v3/api-docs/**", "/api-docs/**",
+                        "/doc.html", "/swagger-ui/**", "*.html", "/ui/**");
+
         // i18n
         registry.addInterceptor(localeChangeInterceptor());
         if (trafficConfiguration.isGlobalSwitch() || trafficConfiguration.isTenantSwitch()) {
             registry.addInterceptor(createRateLimitInterceptor());
         }
+
         registry.addInterceptor(loginInterceptor())
                 .addPathPatterns(LOGIN_INTERCEPTOR_PATH_PATTERN)
-                .excludePathPatterns(LOGIN_PATH_PATTERN, REGISTER_PATH_PATTERN,
+                .excludePathPatterns(REGISTER_PATH_PATTERN, SSO_LOGIN_PATTERN, QUERY_ON_DAM,
                         "/swagger-resources/**", "/webjars/**", "/v3/api-docs/**", "/api-docs/**",
-                        "/doc.html", "/swagger-ui/**", "*.html", "/ui/**", "/error");
+                        "/doc.html", "/swagger-ui/**", "*.html", "/error"
+                // "/ui/**"
+                );
+
     }
 
     @Override

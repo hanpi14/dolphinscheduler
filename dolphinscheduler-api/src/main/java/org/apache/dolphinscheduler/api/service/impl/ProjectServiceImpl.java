@@ -618,4 +618,39 @@ public class ProjectServiceImpl extends BaseServiceImpl implements ProjectServic
         return result;
     }
 
+    @Override
+    public Result queryAllProjectOnManager(User userByUserName) {
+        Result result = new Result();
+        ArrayList<Project> projects = new ArrayList<>();
+
+        Set<Integer> projectIds = resourcePermissionCheckService.userOwnedResourceIdsAcquisition(
+                AuthorizationType.PROJECTS, userByUserName.getId(), logger);
+
+        logger.info("获取projectIds是:{}", projectIds);
+        if (projectIds.isEmpty()) {
+            result.setData(projects);
+            putMsg(result, Status.SUCCESS);
+            return result;
+        }
+
+        List<Project> projectList = projectMapper.queryByProjectIds(new ArrayList<>(projectIds));
+        if (userByUserName.getUserType() != UserType.ADMIN_USER) {
+            for (Project project : projectList) {
+                project.setPerm(Constants.DEFAULT_ADMIN_PERMISSION);
+            }
+        }
+        logger.info("获取的projectList是:{}", projectList);
+
+        for (Project project : projectList) {
+            projects.add(project);
+        }
+
+        logger.info("获取的projectName为:{}", projects);
+
+        result.setData(projects);
+        putMsg(result, Status.SUCCESS);
+
+        return result;
+    }
+
 }

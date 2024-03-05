@@ -36,6 +36,7 @@ export default {
         title: '数据源中心',
         activeMenu: 'datasource',
         showSide: false,
+        showTopSide: true,
         auth: []
       }
     }

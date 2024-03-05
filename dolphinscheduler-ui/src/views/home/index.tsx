@@ -50,6 +50,7 @@ export default defineComponent({
 
     onMounted(() => {
       initData()
+
     })
 
     watch(

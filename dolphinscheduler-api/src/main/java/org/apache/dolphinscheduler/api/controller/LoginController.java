@@ -28,25 +28,39 @@ import org.apache.dolphinscheduler.api.security.Authenticator;
 import org.apache.dolphinscheduler.api.service.SessionService;
 import org.apache.dolphinscheduler.api.utils.Result;
 import org.apache.dolphinscheduler.common.constants.Constants;
+import org.apache.dolphinscheduler.common.utils.HttpUtils;
 import org.apache.dolphinscheduler.dao.entity.User;
 
 import springfox.documentation.annotations.ApiIgnore;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.para.esc.sdk.oauth.utils.OAuthConfigUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -59,8 +73,10 @@ import io.swagger.annotations.ApiOperation;
 @Api(tags = "LOGIN_TAG")
 @RestController
 @RequestMapping("")
+@Slf4j
 public class LoginController extends BaseController {
 
+    private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
     @Autowired
     private SessionService sessionService;
 
@@ -88,6 +104,13 @@ public class LoginController extends BaseController {
                         @RequestParam(value = "userPassword") String userPassword,
                         HttpServletRequest request,
                         HttpServletResponse response) {
+
+        // try {
+        // response.sendRedirect("http://doris1:50070/");
+        // } catch (IOException e) {
+        // throw new RuntimeException(e);
+        // }
+
         // user name check
         if (StringUtils.isEmpty(userName)) {
             return error(Status.USER_NAME_NULL.getCode(),
@@ -101,7 +124,17 @@ public class LoginController extends BaseController {
         }
 
         // verify username and password
-        Result<Map<String, String>> result = authenticator.authenticate(userName, userPassword, ip);
+        // Result<Map<String, String>> result = authenticator.authenticate(userName, userPassword, ip);
+        Result<Map<String, String>> result = null;
+
+        if ("admin".equals(userName.trim())) {
+            logger.info("================ admin 从ds登录页面 进入 =======================");
+            result = authenticator.authenticate(userName, userPassword, ip);
+        } else {
+            logger.info("================ 其他用户 从ds登录页面 进入 =======================");
+            result = doOauthAuthentication(userName, userPassword, ip);
+
+        }
         if (result.getCode() != Status.SUCCESS.getCode()) {
             return result;
         }
@@ -115,6 +148,48 @@ public class LoginController extends BaseController {
         }
 
         return result;
+    }
+
+    public Result doOauthAuthentication(String userName, String userPassword, String ip) {
+        OAuthConfigUtil configUtil = new OAuthConfigUtil("appIDP");
+        logger.info("================从ds请求到外部应用接口认证后获取返回值进入 =======================");
+        // http://144.131.246.210/profile/oidc/token?grant_type=password&scope=api
+        // &client_id=uHb6vpoZmj&client_secret=b231d8fa-4175-47a0-aa4e-8355fd344ba7&username=testCoremail2&password=xgNOk6$u
+        String profile = configUtil.getAuthorizeUrl().split("/oauth2/")[0].trim();
+        String url = profile + "/oidc/token?grant_type=password&scope=api&client_id=" + configUtil.getClientId()
+                + "&client_secret=" + configUtil.getClientSecret() + "&username=" + userName + "&password="
+                + userPassword;
+
+        logger.info("==============请求的url:{}", url);
+        String res = HttpUtils.get(url);
+        logger.info("==============请求的结果:{}", res);
+        if (StringUtils.isEmpty(res)) {
+            return error(Status.USER_NAME_NULL.getCode(),
+                    Status.USER_NAME_NULL.getMsg());
+        }
+        JSONObject oauthoJson = JSON.parseObject(res);
+        String idToken = oauthoJson.getString("id_token");
+        if (StringUtils.isEmpty(idToken)) {
+            return error(Status.USER_AUTHEN_NULL.getCode(),
+                    Status.USER_AUTHEN_NULL.getMsg());
+        }
+        // 解密拿到用户名
+        String client = new String(Base64.decodeBase64(idToken.split("\\.")[1].trim().getBytes()));
+        String sub = JSON.parseObject(client).getString("sub");
+        String[] clientStr = sub.split(",");
+        List<String> clientStrList = new ArrayList<>();
+        Collections.addAll(clientStrList, clientStr);
+        /*
+         * if(!clientStrList.contains(userName) || clientStrList.contains("admin")){ return
+         * error(Status.USER_AUTHEN_NULL.getCode(), Status.USER_AUTHEN_NULL.getMsg()); }
+         */
+        userName = clientStr[0];
+        logger.info("=================clientStr:" + Arrays.toString(clientStr));
+        // userName = clientStr[0];
+
+        userPassword = "dolphinscheduler123";
+
+        return authenticator.authenticate(userName, userPassword, ip);
     }
 
     /**
@@ -134,6 +209,7 @@ public class LoginController extends BaseController {
         sessionService.signOut(ip, loginUser);
         // clear session
         request.removeAttribute(Constants.SESSION_USER);
+
         return success();
     }
 }

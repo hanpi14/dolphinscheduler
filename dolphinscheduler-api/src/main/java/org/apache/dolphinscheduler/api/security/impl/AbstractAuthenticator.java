@@ -28,6 +28,7 @@ import org.apache.dolphinscheduler.common.enums.Flag;
 import org.apache.dolphinscheduler.dao.entity.Session;
 import org.apache.dolphinscheduler.dao.entity.User;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class AbstractAuthenticator implements Authenticator {
+
     private static final Logger logger = LoggerFactory.getLogger(AbstractAuthenticator.class);
 
     @Autowired
@@ -48,6 +50,8 @@ public abstract class AbstractAuthenticator implements Authenticator {
 
     @Autowired
     private SecurityConfig securityConfig;
+
+    private String sessionIdLogin;
 
     /**
      * user login and return user in db
@@ -97,13 +101,110 @@ public abstract class AbstractAuthenticator implements Authenticator {
     }
 
     @Override
+    public Result<Map<String, String>> authenticateSSO(String userId, String extra) {
+        Result<Map<String, String>> result = new Result<>();
+        User user = userService.getUserByUserName(userId);
+        logger.info("sso---------------userId : {},code :{} ", userId);
+        // User user = login(userId, password, extra);
+        if (user == null) {
+
+            // // TODO: 2024/1/9 standalone使用
+            logger.info("ds用户不存在,创建用户");
+            String userPassword = "dolphinscheduler123";
+            int tenantId = 1;
+            String email = "qqqq@qq.com";
+
+            userService.createUser(userId, userPassword, email, tenantId, null, null, 1);
+            user = userService.getUserByUserName(userId);
+            logger.info("创建用户成功:{}", user);
+            // TODO: 2024/1/16 容器使用
+            // result.setCode(Status.USER_NAME_PASSWD_ERROR.getCode());
+            // result.setMsg(Status.USER_NAME_PASSWD_ERROR.getMsg());
+            // return result;
+        }
+        logger.info("sso---------------user : {}", user.toString());
+        // check user state
+        if (user.getState() == Flag.NO.ordinal()) {
+            result.setCode(Status.USER_DISABLED.getCode());
+            result.setMsg(Status.USER_DISABLED.getMsg());
+            return result;
+        }
+
+        // create session
+        String sessionId = sessionService.createSession(user, extra);
+        // 加入 缓存,code session
+        sessionIdLogin = sessionId;
+        logger.info("ssssssssssssss + sessionIdLogin {} ", sessionIdLogin);
+        if (sessionId == null) {
+            result.setCode(Status.LOGIN_SESSION_FAILED.getCode());
+            result.setMsg(Status.LOGIN_SESSION_FAILED.getMsg());
+            return result;
+        }
+        logger.info("sso sessionId : {}", sessionId);
+        result.setData(Collections.singletonMap(Constants.SESSION_ID, sessionId));
+        result.setCode(Status.SUCCESS.getCode());
+        result.setMsg(Status.LOGIN_SUCCESS.getMsg());
+        return result;
+    }
+
+    @Override
+    public Result<Map<String, Object>> authenticateDAM(String userName, String extra) {
+        Result<Map<String, Object>> result = new Result<>();
+        User user = userService.getUserByUserName(userName);
+        logger.info("dam---------------userName : {},code :{} ", userName);
+        // User user = login(userId, password, extra);
+        if (user == null) {
+
+            // // TODO: 2024/1/9 standalone使用
+            logger.info("ds用户不存在,创建用户");
+            String userPassword = "dolphinscheduler123";
+            int tenantId = 1;
+            String email = "qqqq@qq.com";
+
+            userService.createUser(userName, userPassword, email, tenantId, null, null, 1);
+            user = userService.getUserByUserName(userName);
+            logger.info("创建用户成功:{}", user);
+            // TODO: 2024/1/16 容器使用
+            // result.setCode(Status.USER_NAME_PASSWD_ERROR.getCode());
+            // result.setMsg(Status.USER_NAME_PASSWD_ERROR.getMsg());
+            // return result;
+        }
+        logger.info("sso---------------user : {}", user.toString());
+        // check user state
+        if (user.getState() == Flag.NO.ordinal()) {
+            result.setCode(Status.USER_DISABLED.getCode());
+            result.setMsg(Status.USER_DISABLED.getMsg());
+            return result;
+        }
+
+        // create session
+        String sessionId = sessionService.createSession(user, extra);
+        // 加入 缓存,code session
+        sessionIdLogin = sessionId;
+        logger.info("ssssssssssssss + sessionIdLogin {} ", sessionIdLogin);
+        if (sessionId == null) {
+            result.setCode(Status.LOGIN_SESSION_FAILED.getCode());
+            result.setMsg(Status.LOGIN_SESSION_FAILED.getMsg());
+            return result;
+        }
+        logger.info("sso sessionId : {}", sessionId);
+        HashMap<String, Object> map = new HashMap<>();
+        map.put(Constants.SESSION_ID, sessionId);
+        map.put("user", user);
+        result.setData(map);
+        result.setCode(Status.SUCCESS.getCode());
+        result.setMsg(Status.LOGIN_SUCCESS.getMsg());
+        return result;
+    }
+
+    @Override
     public User getAuthUser(HttpServletRequest request) {
         Session session = sessionService.getSession(request);
         if (session == null) {
             logger.info("session info is null ");
             return null;
         }
-        //get user object from session
+        // get user object from session
         return userService.queryUser(session.getUserId());
     }
 

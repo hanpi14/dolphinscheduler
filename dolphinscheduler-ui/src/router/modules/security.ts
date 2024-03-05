@@ -37,6 +37,7 @@ export default {
         title: '租户管理',
         activeMenu: 'security',
         showSide: true,
+        showTopSide: true,
         auth: ['ADMIN_USER']
       }
     },
@@ -48,6 +49,7 @@ export default {
         title: '用户管理',
         activeMenu: 'security',
         showSide: true,
+        showTopSide: true,
         auth: ['ADMIN_USER']
       }
     },
@@ -59,6 +61,7 @@ export default {
         title: '告警组管理',
         activeMenu: 'security',
         showSide: true,
+        showTopSide: true,
         auth: ['ADMIN_USER']
       }
     },
@@ -70,6 +73,7 @@ export default {
         title: 'Worker分组管理',
         activeMenu: 'security',
         showSide: true,
+        showTopSide: true,
         auth: ['ADMIN_USER']
       }
     },
@@ -81,6 +85,7 @@ export default {
         title: 'Yarn队列管理',
         activeMenu: 'security',
         showSide: true,
+        showTopSide: true,
         auth: ['ADMIN_USER']
       }
     },
@@ -92,6 +97,7 @@ export default {
         title: '环境管理',
         activeMenu: 'security',
         showSide: true,
+        showTopSide: true,
         auth: ['ADMIN_USER']
       }
     },
@@ -103,6 +109,7 @@ export default {
         title: '集群管理',
         activeMenu: 'security',
         showSide: true,
+        showTopSide: true,
         auth: ['ADMIN_USER']
       }
     },
@@ -114,6 +121,7 @@ export default {
         title: '令牌管理管理',
         activeMenu: 'security',
         showSide: true,
+        showTopSide: true,
         auth: []
       }
     },
@@ -125,6 +133,7 @@ export default {
         title: '告警实例管理',
         activeMenu: 'security',
         showSide: true,
+        showTopSide: true,
         auth: ['ADMIN_USER']
       }
     },
@@ -136,6 +145,7 @@ export default {
         title: 'K8S命名空间管理',
         activeMenu: 'security',
         showSide: true,
+        showTopSide: true,
         auth: ['ADMIN_USER']
       }
     }

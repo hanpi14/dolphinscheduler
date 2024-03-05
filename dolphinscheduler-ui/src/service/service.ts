@@ -17,13 +17,21 @@
 
 import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios'
 import { useUserStore } from '@/store/user/user'
+
 import qs from 'qs'
 import _ from 'lodash'
 import cookies from 'js-cookie'
 import router from '@/router'
 import utils from '@/utils'
+import {UserInfoRes} from "@/service/modules/users/types";
+import {getUserInfo} from "@/service/modules/users";
+
+import { useTimezoneStore } from '@/store/timezone/timezone'
+
 
 const userStore = useUserStore()
+const userInfo = userStore.getUserInfo as UserInfoRes
+const timezoneStore = useTimezoneStore()
 
 /**
  * @description Log and display errors
@@ -40,9 +48,9 @@ const handleError = (res: AxiosResponse<any, any>) => {
 
 const baseRequestConfig: AxiosRequestConfig = {
   baseURL:
-    import.meta.env.MODE === 'development'
-      ? '/dolphinscheduler'
-      : import.meta.env.VITE_APP_PROD_WEB_URL + '/dolphinscheduler',
+      import.meta.env.MODE === 'development'
+          ? '/dolphinscheduler'
+          : import.meta.env.VITE_APP_PROD_WEB_URL + '/dolphinscheduler',
   timeout: 15000,
   transformRequest: (params) => {
     if (_.isPlainObject(params)) {
@@ -69,6 +77,11 @@ const err = (err: AxiosError): Promise<AxiosError> => {
   return Promise.reject(err)
 }
 
+
+
+
+
+
 service.interceptors.request.use((config: AxiosRequestConfig<any>) => {
   config.headers && (config.headers.sessionId = userStore.getSessionId)
   const language = cookies.get('language')
@@ -78,20 +91,63 @@ service.interceptors.request.use((config: AxiosRequestConfig<any>) => {
   return config
 }, err)
 
+
+// service.interceptors.response.use(async (response) => {
+//
+//   let sessionId;
+//   response.data.path.data
+//
+//   console.log('获取到的sessionId是:', sessionId);
+//   if (sessionId) {
+//
+//     cookies.set('sessionId', sessionId, {path: '/'})
+//
+//     const userInfoRes: UserInfoRes = await getUserInfo()
+//     await userStore.setUserInfo(userInfoRes)
+//     await userStore.setSessionId(sessionId);
+//
+//   }
+//
+//   return response;
+// },(error)=>{
+//   console.error('自定义前端响应拦截器An error occurred:', error);
+//   return Promise.reject(error);
+// })
+
 // The response to intercept
-service.interceptors.response.use((res: AxiosResponse) => {
+service.interceptors.response.use( (res: AxiosResponse) => {
+
+
   // No code will be processed
   if (res.data.code === undefined) {
     return res.data
   }
 
-  switch (res.data.code) {
-    case 0:
-      return res.data.data
-    default:
-      handleError(res)
-      throw new Error()
+  if (!userInfo) {
+    console.log("此时的userInfo为空,设置用户")
+    const userInfoRes: UserInfoRes =  getUserInfo()
+     userStore.setUserInfo(userInfoRes)
+
+    const timezone = userInfoRes.timeZone ? userInfoRes.timeZone : 'UTC'
+    timezoneStore.setTimezone(timezone)
+
+  }else {
+    console.log("此时的userInfo不为空:"+userInfo)
   }
+
+  if (userStore.getUserInfo)
+
+    switch (res.data.code) {
+      case 0:
+        return res.data.data
+      default:
+        handleError(res)
+        throw new Error()
+    }
+
+
 }, err)
+
+
 
 export { service as axios }

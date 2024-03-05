@@ -143,4 +143,7 @@ public interface ProjectMapper extends BaseMapper<Project> {
      * @return projectList
      */
     List<Project> queryAllProjectForDependent();
+
+    List<Project> queryByProjectIds(@Param("projectsIds") List<Integer> projectsIds);
+
 }

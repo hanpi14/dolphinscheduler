@@ -43,6 +43,7 @@ export function useDropDown() {
       userStore.setUserInfo({})
       cookies.remove('sessionId')
 
+      //本地添加
       router.push({ path: '/login' })
     })
   }
